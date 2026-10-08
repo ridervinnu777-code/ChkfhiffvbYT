@@ -1,0 +1,588 @@
+<!-- 
+========================================================
+YouTube Music API for Telegram Bots & Apps
+Reference: Made by Yuvi
+All rights & comments: Made by Yuvi
+========================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Music API — Telegram Bots & Apps • Made by Yuvi</title>
+    <meta name="description" content="High-performance YouTube Music & Video Downloader API built for Telegram music bots and mobile applications. Zero database, zero login, direct running. Made by Yuvi.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #090d16;
+            --bg-secondary: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.65);
+            --border: rgba(148, 163, 184, 0.12);
+            --border-glow: rgba(99, 102, 241, 0.35);
+            --accent-primary: #6366f1;
+            --accent-hover: #4f46e5;
+            --accent-cyan: #06b6d4;
+            --accent-pink: #ec4899;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --font-display: 'Outfit', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(236, 72, 153, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 2.5rem;
+            backdrop-filter: blur(16px);
+            background: rgba(9, 13, 22, 0.85);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .logo-text {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.55rem;
+            background: rgba(99, 102, 241, 0.18);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            color: #818cf8;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #6ee7b7;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .author-badge {
+            font-size: 0.82rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(236, 72, 153, 0.12);
+            border: 1px solid rgba(236, 72, 153, 0.3);
+            color: #f472b6;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .author-badge:hover {
+            background: rgba(236, 72, 153, 0.25);
+            transform: translateY(-1px);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 1.5rem 5rem 1.5rem;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .hero-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            padding: 0.4rem 1.25rem;
+            border-radius: 999px;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            margin-bottom: 1.25rem;
+            font-weight: 600;
+        }
+
+        .hero h1 {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ffffff 30%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.15rem;
+            max-width: 720px;
+            margin: 0 auto 1.75rem auto;
+        }
+
+        .feature-tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .feature-tag {
+            font-size: 0.82rem;
+            padding: 0.4rem 0.95rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 2rem;
+            backdrop-filter: blur(12px);
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: var(--border-glow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.35rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Grid */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            nav {
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        /* Code Blocks */
+        pre {
+            background: #060911;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #38bdf8;
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        pre code {
+            font-family: var(--font-mono);
+        }
+
+        .endpoint-label {
+            font-size: 0.82rem;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .copy-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        /* Cookie Guide Card */
+        .cookie-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 18px;
+            padding: 1.75rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .cookie-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(6, 182, 212, 0.2);
+            border: 1px solid rgba(6, 182, 212, 0.4);
+            color: #67e8f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1e293b;
+            color: #fff;
+            padding: 0.9rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--accent-primary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 1000;
+            animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 1rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        footer strong {
+            color: #a5b4fc;
+        }
+
+        footer a {
+            color: #67e8f9;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation - Made by Yuvi -->
+    <nav>
+        <a href="/" class="logo-wrap">
+            <div class="logo-icon">🎶</div>
+            <span class="logo-text">YouTube Music API</span>
+            <span class="logo-badge">Direct Running</span>
+        </a>
+        <div class="nav-actions">
+            <div class="status-pill">
+                <span class="status-dot"></span>
+                <span>Direct API Active</span>
+            </div>
+            {% if cookies_available %}
+            <span class="status-pill" style="background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.3); color: #67e8f9;">
+                🍪 Cookies Loaded
+            </span>
+            {% else %}
+            <span class="status-pill" style="background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3); color: #fde68a;">
+                🍪 Public Client Mode
+            </span>
+            {% endif %}
+            <a href="https://t.me/yuvi_botes" target="_blank" class="author-badge">Made by Yuvi</a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Hero Section - Made by Yuvi -->
+        <div class="hero">
+            <div class="hero-pill">⚡ Backend API for Telegram Music Bots & Applications</div>
+            <h1>YouTube Music & Stream API</h1>
+            <p>Direct audio streaming, track search, and high-fidelity downloading backend built specifically for Telegram Music Bots (PyTgCalls/Yukki/AnonX) and custom music applications. Zero database, zero login, 100% plug & play.</p>
+            <div class="feature-tags">
+                <span class="feature-tag">🤖 Telegram Music Bot Ready</span>
+                <span class="feature-tag">📱 Mobile & Web App Ready</span>
+                <span class="feature-tag">⚡ Direct Audio Streaming</span>
+                <span class="feature-tag">🚫 Zero Database / Supabase</span>
+                <span class="feature-tag">🍪 Plug & Play Cookies</span>
+                <span class="feature-tag">🔄 Multi-Strategy Fallback</span>
+            </div>
+        </div>
+
+        <!-- GRID: ENDPOINTS & BOT/APP EXAMPLES -->
+        <div class="grid-2">
+            
+            <!-- API Endpoints -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 1.25rem;">📡 Direct API Endpoints</div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    Use these endpoints directly in your Telegram Bot or Application code:
+                </p>
+
+                <div class="endpoint-label">
+                    <span>1. Direct Audio Stream URL (For Telegram Voice Chat / PyTgCalls)</span>
+                    <button class="copy-btn" onclick="copySnippet('endpoint-stream')">Copy</button>
+                </div>
+                <pre><code id="endpoint-stream">GET /download?title=SONG_NAME&type=audio&stream=1</code></pre>
+
+                <div class="endpoint-label">
+                    <span>2. Direct Audio Stream by YouTube Video ID</span>
+                    <button class="copy-btn" onclick="copySnippet('endpoint-stream-url')">Copy</button>
+                </div>
+                <pre><code id="endpoint-stream-url">GET /download?url=VIDEO_ID&type=audio&stream=1</code></pre>
+
+                <div class="endpoint-label">
+                    <span>3. Audio File Download (For sending MP3 in chat)</span>
+                    <button class="copy-btn" onclick="copySnippet('endpoint-download')">Copy</button>
+                </div>
+                <pre><code id="endpoint-download">GET /download?title=SONG_NAME&type=audio</code></pre>
+
+                <div class="endpoint-label">
+                    <span>4. Search Tracks & Get Metadata</span>
+                    <button class="copy-btn" onclick="copySnippet('endpoint-search')">Copy</button>
+                </div>
+                <pre><code id="endpoint-search">GET /search?title=SONG_NAME</code></pre>
+
+                <div class="endpoint-label">
+                    <span>5. Service Health Check</span>
+                    <button class="copy-btn" onclick="copySnippet('endpoint-health')">Copy</button>
+                </div>
+                <pre><code id="endpoint-health">GET /health</code></pre>
+            </div>
+
+            <!-- Bot & App Code Examples -->
+            <div class="card">
+                <div class="card-title" style="margin-bottom: 1.25rem;">🤖 Telegram Bot & App Integration</div>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                    Integrate seamlessly into your Telegram Assistant or Mobile App:
+                </p>
+
+                <div class="endpoint-label">
+                    <span>Telegram Music Bot (PyTgCalls Assistant Stream)</span>
+                    <button class="copy-btn" onclick="copySnippet('code-pytgcalls')">Copy</button>
+                </div>
+                <pre><code id="code-pytgcalls"># Telegram Music Bot Stream - Made by Yuvi
+from pytgcalls import PyTgCalls
+from pytgcalls.types import AudioPiped
+
+async def play_music(chat_id, song_query):
+    # Direct stream URL from your API (Zero downloading needed)
+    stream_url = f"http://localhost:5000/download?title={song_query}&type=audio&stream=1"
+    
+    # Play directly in voice chat via Assistant
+    await pytgcalls.join_group_call(
+        chat_id,
+        AudioPiped(stream_url)
+    )</code></pre>
+
+                <div class="endpoint-label">
+                    <span>Python Telegram Bot (Download & Send Audio)</span>
+                    <button class="copy-btn" onclick="copySnippet('code-tele-send')">Copy</button>
+                </div>
+                <pre><code id="code-tele-send"># Download & Send to Telegram User - Made by Yuvi
+import requests
+
+def get_audio_file(query):
+    api_url = "http://localhost:5000/download"
+    res = requests.get(api_url, params={"title": query, "type": "audio"})
+    with open("track.mp3", "wb") as f:
+        f.write(res.content)
+    return "track.mp3"</code></pre>
+
+                <div class="endpoint-label">
+                    <span>Mobile App / Web Player (ExoPlayer, AVPlayer, React Native)</span>
+                    <button class="copy-btn" onclick="copySnippet('code-app')">Copy</button>
+                </div>
+                <pre><code id="code-app">// Pass stream URL directly to app media player - Made by Yuvi
+const streamUrl = `http://localhost:5000/download?title=${encodeURIComponent(songTitle)}&type=audio&stream=1`;
+player.setDataSource(streamUrl);
+player.prepareAndPlay();</code></pre>
+            </div>
+
+        </div>
+
+        <!-- COOKIE ENVIRONMENT HANDOVER GUIDE -->
+        <div class="cookie-card">
+            <div class="card-title" style="color: #67e8f9; margin-bottom: 0.5rem;">
+                🍪 Plug & Play Cookie Environment Setup
+            </div>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                This repository is fully configured for seamless sharing. You can safely remove cookies before sending the code to anyone. The recipient only needs to add their own cookies to get 100% full bot-check bypass:
+            </p>
+
+            <div class="cookie-step">
+                <div class="step-num">1</div>
+                <div>
+                    <div style="font-weight: 600; color: #f8fafc;">Option A: Place `cookies.txt` in Root Directory</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        Export your YouTube cookies in Netscape format (using browser extensions like "Get cookies.txt LOCALLY") and save it as <code>cookies.txt</code> in the project root folder.
+                    </div>
+                </div>
+            </div>
+
+            <div class="cookie-step">
+                <div class="step-num">2</div>
+                <div>
+                    <div style="font-weight: 600; color: #f8fafc;">Option B: Set `YOUTUBE_COOKIES` in `.env`</div>
+                    <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                        For cloud environments (Render, Vercel, Railway), paste your raw cookies content directly into the <code>YOUTUBE_COOKIES</code> variable in <code>.env</code>. The API will auto-load them seamlessly!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Copied to clipboard!</div>
+
+    <!-- Footer - Made by Yuvi -->
+    <footer>
+        <p>YouTube Music & Stream API • Reference: <strong>Made by Yuvi</strong></p>
+        <p style="margin-top: 0.4rem;">
+            Telegram: <a href="https://t.me/yuvi_botes" target="_blank">@yuvi_botes</a> • All comments & artist credits: <strong>Made by Yuvi</strong>
+        </p>
+    </footer>
+
+    <script>
+        // Made by Yuvi - Clean Copy Utility
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function copySnippet(id) {
+            const text = document.getElementById(id).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Snippet copied to clipboard!");
+            });
+        }
+    </script>
+</body>
+</html>
